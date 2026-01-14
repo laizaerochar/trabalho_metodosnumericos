@@ -174,41 +174,44 @@ ax1.plot(x_coords, y_inferior, 'r-', linewidth=2, label='Margem Inferior')
 ax1.fill_between(x_coords, y_inferior, y_superior, alpha=0.3, color='green', label='APP')
 
 # Adicionar pontos de medição
-ax1.scatter(x_coords, y_superior, color='blue', s=50, zorder=5)
-ax1.scatter(x_coords, y_inferior, color='red', s=50, zorder=5)
+ax1.scatter(x_coords, y_superior, color='blue', s=50, zorder=5, label='Pontos Superior')
+ax1.scatter(x_coords, y_inferior, color='red', s=50, zorder=5, label='Pontos Inferior')
 
-ax1.legend(fontsize=11)
+ax1.legend(fontsize=10, loc='upper right')
 ax1.set_xlim(0, 141)
 ax1.set_ylim(0, max(y_superior) + 5)
 
 # Gráfico 2: Comparação dos métodos
-metodos = ['AutoCAD', 'Trapézios', 'Simpson']
+metodos = ['AutoCAD', 'Trapézios\n(Nosso)', 'Simpson\n(Nosso)']
 areas = [area_autocad, area_liquida_trap, area_liquida_simp]
 cores = ['gray', 'blue', 'red']
 
 ax2.set_title('Comparação das Áreas Calculadas', fontsize=14, fontweight='bold')
 ax2.set_ylabel('Área (m²)', fontsize=12)
+ax2.set_xlabel('Método de Cálculo', fontsize=12)
 
-bars = ax2.bar(metodos, areas, color=cores, alpha=0.7)
+bars = ax2.bar(metodos, areas, color=cores, alpha=0.7, edgecolor='black')
 ax2.grid(True, alpha=0.3, axis='y')
 
 # Adicionar valores nas barras
 for bar, area in zip(bars, areas):
     height = bar.get_height()
     ax2.text(bar.get_x() + bar.get_width()/2., height + 10,
-             f'{area:.1f} m²', ha='center', va='bottom', fontsize=11)
+             f'{area:.1f} m²', ha='center', va='bottom', fontsize=11, fontweight='bold')
 
 # Linha de referência do AutoCAD
-ax2.axhline(y=area_autocad, color='gray', linestyle='--', alpha=0.7, linewidth=1)
+ax2.axhline(y=area_autocad, color='gray', linestyle='--', alpha=0.7, linewidth=1, label='Referência AutoCAD')
 
 # Calcular e mostrar os erros
 erros_texto = f'Erros em relação ao AutoCAD:\n' \
-              f'Trapézios: {erro_trap_nosso:.2f} m² ({erro_trap_nosso/area_autocad*100:.3f}%)\n' \
-              f'Simpson: {erro_simp_nosso:.2f} m² ({erro_simp_nosso/area_autocad*100:.3f}%)'
+              f'Trapézios: {erro_trap_nosso:.2f} m²\n' \
+              f'Simpson: {erro_simp_nosso:.2f} m²'
 
 ax2.text(0.02, 0.98, erros_texto, transform=ax2.transAxes,
          fontsize=10, verticalalignment='top',
          bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
+
+ax2.legend(fontsize=10)
 
 plt.tight_layout()
 plt.show()
@@ -225,8 +228,8 @@ ax3.set_ylabel('Largura (m)', fontsize=12)
 ax3.grid(True, alpha=0.3)
 
 # Plotar a curva original
-ax3.plot(x_coords, y_superior, 'b-', linewidth=2, alpha=0.5, label='Curva Original')
-ax3.plot(x_coords, y_inferior, 'r-', linewidth=2, alpha=0.5)
+ax3.plot(x_coords, y_superior, 'b-', linewidth=2, alpha=0.5, label='Curva Original Superior')
+ax3.plot(x_coords, y_inferior, 'r-', linewidth=2, alpha=0.5, label='Curva Original Inferior')
 
 # Preencher com trapézios (aproximação)
 for i in range(len(x_coords)-1):
@@ -235,7 +238,7 @@ for i in range(len(x_coords)-1):
                  (x_coords[i], y_superior[i]),
                  (x_coords[i+1], y_superior[i+1]),
                  (x_coords[i+1], 0)]
-    poly_sup = Polygon(verts_sup, alpha=0.2, color='blue')
+    poly_sup = Polygon(verts_sup, alpha=0.2, color='blue', label='Trapézio Superior' if i==0 else "")
     ax3.add_patch(poly_sup)
     
     # Trapézio inferior (considerando eixo x como referência)
@@ -243,13 +246,14 @@ for i in range(len(x_coords)-1):
                  (x_coords[i], -y_inferior[i]),
                  (x_coords[i+1], -y_inferior[i+1]),
                  (x_coords[i+1], 0)]
-    poly_inf = Polygon(verts_inf, alpha=0.2, color='red')
+    poly_inf = Polygon(verts_inf, alpha=0.2, color='red', label='Trapézio Inferior' if i==0 else "")
     ax3.add_patch(poly_inf)
 
 ax3.set_xlim(0, 141)
 ax3.set_ylim(-max(y_inferior)-5, max(y_superior)+5)
 ax3.axhline(y=0, color='black', linewidth=0.5)
-ax3.legend()
+ax3.set_xlabel('Comprimento (m)', fontsize=12)
+ax3.legend(fontsize=10, loc='upper right')
 
 # Subplot 2: Aproximação por Simpson (parábolas)
 ax4.set_title('Aproximação pela Regra de Simpson (Parábolas)', fontsize=14, fontweight='bold')
@@ -258,8 +262,8 @@ ax4.set_ylabel('Largura (m)', fontsize=12)
 ax4.grid(True, alpha=0.3)
 
 # Plotar a curva original
-ax4.plot(x_coords, y_superior, 'b-', linewidth=2, alpha=0.5, label='Curva Original')
-ax4.plot(x_coords, y_inferior, 'r-', linewidth=2, alpha=0.5)
+ax4.plot(x_coords, y_superior, 'b-', linewidth=2, alpha=0.5, label='Curva Original Superior')
+ax4.plot(x_coords, y_inferior, 'r-', linewidth=2, alpha=0.5, label='Curva Original Inferior')
 
 # Desenhar parábolas aproximadas (a cada 2 intervalos)
 for i in range(0, len(x_coords)-2, 2):
@@ -271,16 +275,61 @@ for i in range(0, len(x_coords)-2, 2):
     # Gerar mais pontos para uma curva suave
     x_fine = np.linspace(x_coords[i], x_coords[i+2], 50)
     
-    # Interpolação quadrática (simples)
-    # Para simplificar, vamos apenas mostrar os segmentos
-    ax4.fill_between(x_fine, 
-                     np.interp(x_fine, x_parabola, y_parabola_inf),
-                     np.interp(x_fine, x_parabola, y_parabola_sup),
-                     alpha=0.2, color='green')
+    # Interpolação quadrática
+    # Coeficientes da parábola para a margem superior
+    coeff_sup = np.polyfit(x_parabola, y_parabola_sup, 2)
+    y_fine_sup = np.polyval(coeff_sup, x_fine)
+    
+    # Coeficientes da parábola para a margem inferior
+    coeff_inf = np.polyfit(x_parabola, y_parabola_inf, 2)
+    y_fine_inf = np.polyval(coeff_inf, x_fine)
+    
+    # Preencher a área entre as parábolas
+    ax4.fill_between(x_fine, y_fine_inf, y_fine_sup, alpha=0.2, color='green', label='Área Simpson' if i==0 else "")
+
+# Adicionar pontos de amostragem
+ax4.scatter(x_coords, y_superior, color='blue', s=30, zorder=5, alpha=0.7, label='Pontos Superior')
+ax4.scatter(x_coords, y_inferior, color='red', s=30, zorder=5, alpha=0.7, label='Pontos Inferior')
 
 ax4.set_xlim(0, 141)
 ax4.set_ylim(0, max(y_superior)+5)
-ax4.legend()
+ax4.legend(fontsize=10, loc='upper right')
+
+plt.tight_layout()
+plt.show()
+
+# ==============================================
+# GRÁFICO 3: COMPARAÇÃO DE ERROS
+# ==============================================
+
+fig3, ax5 = plt.subplots(figsize=(10, 6))
+
+metodos_erro = ['Trapézios\n(Artigo)', 'Trapézios\n(Nosso)', 'Simpson\n(Artigo)', 'Simpson\n(Nosso)']
+erros = [erro_trap_artigo, erro_trap_nosso, erro_simp_artigo, erro_simp_nosso]
+cores_erro = ['lightblue', 'blue', 'lightcoral', 'red']
+
+ax5.set_title('Erros em Relação à Referência AutoCAD', fontsize=14, fontweight='bold')
+ax5.set_ylabel('Erro Absoluto (m²)', fontsize=12)
+ax5.set_xlabel('Método de Cálculo', fontsize=12)
+
+bars_erro = ax5.bar(metodos_erro, erros, color=cores_erro, alpha=0.8, edgecolor='black')
+ax5.grid(True, alpha=0.3, axis='y')
+
+# Adicionar valores nas barras
+for bar, erro in zip(bars_erro, erros):
+    height = bar.get_height()
+    ax5.text(bar.get_x() + bar.get_width()/2., height + 0.2,
+             f'{erro:.2f} m²', ha='center', va='bottom', fontsize=11)
+
+# Linha horizontal em y=0
+ax5.axhline(y=0, color='black', linewidth=0.5)
+
+# Adicionar porcentagem de erro
+porcentagens_erro = [(erro/area_autocad)*100 for erro in erros]
+for i, (bar, porcentagem) in enumerate(zip(bars_erro, porcentagens_erro)):
+    ax5.text(bar.get_x() + bar.get_width()/2., bar.get_height()/2,
+             f'({porcentagem:.3f}%)', ha='center', va='center', 
+             color='white', fontsize=10, fontweight='bold')
 
 plt.tight_layout()
 plt.show()
